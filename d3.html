@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+	#bar {
+		position:fixed;
+		left: 20px;
+		right: 20px;
+		top: 20px;
+		bottom: 20px;
+	}
+</style>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<div id="bar">
+	<button type="button" onclick="generateData()">Regenerate</button>
+</div>
+<script>
+	var datasets = [];
+	const totalNum = 400;
+	const numOfData = 10;
+	function generateData(){
+		// Geerate data
+		datasets = d3.range(numOfData).map(function() {
+			return Math.round(totalNum * Math.random());
+		});
+		drawGraphic();
+	}
+	function drawGraphic(){
+		// Remove any svg elements before creating new one
+		d3.selectAll('svg').remove();
+		
+		var barDiv = document.getElementById("bar");
+		var margin =  {top: 20, right: 20, bottom: 20, left: 20},
+			width = barDiv.clientWidth - margin.left - margin.right,
+			height = barDiv.clientHeight - margin.top - margin.bottom;
+		
+		// Append svg and set its height and width
+		// A lots of improvement can be done like it should be
+		// more dynamic in calculating bar sizes
+		var svg = d3.select('#bar').append('svg')
+		                           .attr("width", width)
+		                           .attr("height", height);
+		// Set bars
+		const barPadding = 1;		
+		svg.selectAll("rect")
+		   .data(datasets)
+		   .enter()
+		   .append("rect")
+		   .attr("x", function(d, i) {
+				return (i * width) / datasets.length;
+			})
+		   .attr("y", function(d) {
+				return height - d;
+			})
+		   .attr("width", width / datasets.length - barPadding)
+		   .attr("height", function(d) {
+				return d * 10;
+			})
+		   .attr("fill", function(d) {
+				return "rgb(0, 0, " + (d * 1) + ")";
+			});
+		// Set simple labels for those bars
+		svg.selectAll("text")
+		    .data(datasets)
+		    .enter()
+		    .append("text")
+			.text(function(d) {
+					return d;
+			})
+			.attr("x", function(d, i) {
+				return (i * width) / datasets.length + 5;
+		    })
+		   .attr("y", function(d) {
+				return height - d + 15;
+		    })
+			.attr("font-family", "sans-serif")
+		    .attr("font-size", "18px")
+		    .attr("fill", "white");
+;
+	}
+	// At start, generate the data before rendering to graph
+	generateData();
+	var resizeTimer;
+	window.onresize = function(event) {
+	 // Set a delay time before showing the new graph
+	 clearTimeout(resizeTimer);
+	  resizeTimer = setTimeout(function()
+	  {
+	    drawGraphic();
+	  }, 100);
+	}
+</script>
+</body>
+
+</html>
